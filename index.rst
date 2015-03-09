@@ -1,7 +1,7 @@
 jeo Documentation
 =================
 
-Welcome to the documentation for the jeo project. Below you'll find the 
+Welcome to the documentation for the jeo project.
 
 .. toctree::
    :maxdepth: 1
@@ -13,11 +13,4 @@ Welcome to the documentation for the jeo project. Below you'll find the
    hacking
 
 .. todolist::
-
-.. Indices and tables
-.. ==================
-
-.. * :ref:`genindex`
-.. * :ref:`modindex`
-.. * :ref:`search`
 
