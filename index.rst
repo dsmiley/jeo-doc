@@ -11,6 +11,7 @@ Welcome to the documentation for the jeo project.
    cli/index
    faq
    hacking
+   apidoc
 
 .. todolist::
 
