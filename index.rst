@@ -8,6 +8,7 @@ Welcome to the documentation for the jeo project.
 
    getting-started
    overview/index
+   format/index
    cli/index
    faq
    hacking
