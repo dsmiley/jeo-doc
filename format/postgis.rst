@@ -72,6 +72,14 @@ The following connection options are supported by the PostGIS driver.
       -
       -
 
+Driver Aliases
+--------------
+
+The PostGIS driver is identified by the name ``postgis`` but can also be referenced as:
+
+* ``pg``
+* ``pgsql``
+
 .. _schemas:
 
 Database Schemas
@@ -85,29 +93,35 @@ made available. In this mode dataset names may contain a reference to the schema
 
      db.get("osm.roads");
 
-Filtering
----------
+Driver Capabilities
+-------------------
 
-The PostGIS driver can handle most types of filters natively. The following table summarizes.
+The following table summarizes the native capabilities of the PostGIS driver.
 
 .. list-table::
    :header-rows: 1
 
-   *  -  Type
+   *  -  Capability
       -  Supported
       -  Notes
-   *  -  Expressions
-      -  Partial
+   *  -  Dataset Creation
+      -  Yes
+      -
+   *  -  Write Support
+      -  Yes
+      -
+   *  -  Bounds Filtering
+      -  Yes
+      -
+   *  -  Property Filtering
+      -  Most
       -  Mixed and Self expressions not handled
-   *  -  Bounding box
+   *  -  Limit
       -  Yes
       -
-   *  -  Spatial
+   *  -  Offset
       -  Yes
       -
-   *  -  Comparison
-      -  Yes
-      -
-   *  -  Logical
+   *  -  Field Selection
       -  Yes
       -
