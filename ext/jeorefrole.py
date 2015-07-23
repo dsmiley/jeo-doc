@@ -12,7 +12,7 @@ def make_link_node(rawtext, ref, app):
     class_name, member_name = ref, None
 
   class_path = class_name.split('.')
-  link_url = '%s/org/jeo/%s.html' % (base_url, '/'.join(class_path))
+  link_url = '%s/io/jeo/%s.html' % (base_url, '/'.join(class_path))
   if member_name is not None:
     link_url += '#' + member_name
 
