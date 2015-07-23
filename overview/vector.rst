@@ -23,16 +23,16 @@ and  provides a number of data access methods.
 .. code-block:: java
 
   // read the data
-  VectorDataset data = GeoJSON.open(new File("points.json")))
+  VectorDataset data = GeoJSON.open(Paths.get("points.json"));
 
   // get the spatial bounds
-  Envelope bbox = data.bounds();
+  Bounds bbox = data.bounds();
 
   // count the number of features
   data.count(new VectorQuery());
 
   // iterate over the features
-  for (Feature f : data.cursor(new VectorQuery())) {
+  for (Feature f : data.read(new VectorQuery())) {
     System.out.println(f);
   }
 
@@ -131,23 +131,23 @@ also perfectly valid for a feature to have no geometry attribute, in which case 
    Typically the default geometry of a feature is the first one encountered when iterating through 
    the feature attributes, whatever order they may be in.
 
-A feature :jeoref:`vector.Schema` is used to describe the  structure and attributes of a feature 
+A feature :jeoref:`vector.Schema` is used to describe the structure and attributes of a feature 
 object. A schema is a collection of :jeoref:`vector.Field` objects, each field containing a name, 
 a type, and an optional coordinate reference system.
 
 .. code-block:: java
 
-   // grab a feature
-   Feature f = ...;
+   // grab a dataset
+   VectorDataset data = ...;
 
    // gets its schema
-   Schema schema = f.schema();
+   Schema schema = data.schema();
 
    // iterate over all fields
    for (Field fld : schema) {
-     System.out.println(fld.getName());
-     System.out.println(fld.getType());
-     Systme.out.println(fld.getCRS());
+     System.out.println(fld.name());
+     System.out.println(fld.type());
+     Systme.out.println(fld.crs());
    }
 
 .. todo:: feature crs
@@ -177,7 +177,7 @@ As an example:
    VectorQuery q = new VectorQuery();
 
    // grab all features in a specific area
-   VectorQuery q = new VectorQuery().bounds(new Envelope(...));
+   VectorQuery q = new VectorQuery().bounds(new Bounds(...));
 
    // grab all features with some specific attributes
    VectorQuery q = new VectorQuery().filter("SAMP_POP > 2000000");
@@ -190,7 +190,7 @@ As an example:
 
    // chain them all together
    VectorQuery q = new VectorQuery()
-      .bounds(new Envelope(...))
+      .bounds(new Bounds(...))
       .filter("SAMP_POP > 2000000")
       .offset(100)
       .limit(10)
@@ -198,11 +198,23 @@ As an example:
 
 .. todo:: sorting
 
+The static method :jeoref:`VectorQuery#all()` can be used as shorthand for a query with no 
+constraints.
+
+.. code-block:: java
+
+   import static io.jeo.vector.VectorQuery.all;
+
+   // read everything
+   VectorDataset data = ...;
+
+   data.read(all());
+
 Cursors
 ^^^^^^^
 
-The :jeoref:`data.Cursor` class is used to return a result set  of feature objects from a query. A 
-cursor is for the most part an iterator in the normal java sense.
+The :jeoref:`vector.FeatureCursor` class is used to return a result set  of feature objects from a 
+query. A cursor is for the most part an iterator in the normal java sense.
 
 .. todo:: should rewrite this once cursor vs stream is sorted out
 
@@ -212,7 +224,7 @@ cursor is for the most part an iterator in the normal java sense.
    VectorData dataset = ...;
 
    // query it
-   Cursor<Feature> c = dataset.cursor(new VectorQuery());
+   FeatureCursor c = dataset.read(new VectorQuery());
 
    // iterate
    while (c.hasNext()) {
@@ -228,7 +240,7 @@ hrough a cursor.
 
 .. code-block:: java
 
-   for (Feature f : dataset.cursor(new VectorQuery())) {
+   for (Feature f : dataset.read(new VectorQuery())) {
      System.out.println(f);
    }
 
@@ -236,7 +248,7 @@ Cursors also provide stream like methods suitable for usage with Java 8 lambda s
 
 .. code-block:: java
 
-   dataset.cursor(new VectoryQuery()).each((f) -> System.out.println(f));
+   dataset.read(new VectoryQuery()).each((f) -> System.out.println(f));
 
 .. warning::
 
@@ -247,17 +259,16 @@ Cursors also provide stream like methods suitable for usage with Java 8 lambda s
    terminate prematurely it is up to the application to ensure close is 
    called. 
 
-Cursors can also be used to write to a vector dataset. By default a cursor is considered read-only. 
-The :jeoref:`vector.VectorQuery#update()` and :jeoref:`vector.VectorQuery#append()` methods are used 
-to obtain a write cursor. The former is used to update  existing features of the dataset, and the 
-latter is used to add new features.
+Cursors can also be used to write to a vector dataset. The subclass :jeoref:`vector.FeatureWriteCursor`
+provides two additional methods:
 
-The :jeoref:`data.Cursor#write()` and :jeoref:`data.Cursor#remove()` methods are used in write mode.
+* :jeoref:`vector.FeatureWriteCursor#write()` for updating/appending features
+* :jeoref:`vector.FeatureWriteCursor#remove()` for removing features.
 
 .. code-block:: java
 
    // update every attribute value to a specific value
-   Cursor<Feature> c = dataset.cursor(new Query().append());
+   FeatureWriteCursor c = dataset.update(new VectorQuery().filter("name = 'bar'"));
    while (c.hasNext()) {
      Feature f = c.next();
      f.set("name", "foo");
@@ -265,12 +276,12 @@ The :jeoref:`data.Cursor#write()` and :jeoref:`data.Cursor#remove()` methods are
    }
 
    // remove a feature
-   Cursor<Feature> c = dataset.cursor(new Query().update());
+   FeatureWriteCursor c = dataset.update(new VectorQuery());
    c.next();
    c.remove();
 
    // add a new feature to the dataset
-   Cursor<Feature> c = dataset.cursor(new Query().append());
+   FeatureWriteCursor c = dataset.append(new VectorQuery()));
    Feature f = c.next();
    f.set("name", "bar");
    c.write();
